@@ -1,5 +1,6 @@
-
 import org.junit.jupiter.api.*;
+import org.testng.annotations.Test;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -44,7 +45,7 @@ public class Test1 {
                         Assertions.assertEquals(newContent, content, "文件内容写入不正确");
                 }
 
-                @org.testng.annotations.Test
+                @Test
                 public void testReadFileAsyncWithNonexistentFile() {
                         CompletableFuture<String> futureContent = FileHandler.readFileAsync("nonexistent.txt");
                         Assertions.assertThrows(ExecutionException.class, futureContent::get, "应该抛出文件读取失败的异常");
