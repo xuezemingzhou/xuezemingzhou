@@ -1,4 +1,28 @@
+import java.util.HashMap;
+import java.util.Map;
+
 public class TextComparator {
+
+    private static final Map<String, Double> similarityCache = new HashMap<>();
+
+    // 计算相似度（带缓存）
+    public static double calculateSimilarityWithCache(String text1, String text2) {
+        String key = text1.hashCode() + "_" + text2.hashCode();
+        if (similarityCache.containsKey(key)) {
+            return similarityCache.get(key);
+        }
+        double similarity = calculateSimilarity(text1, text2);
+        similarityCache.put(key, similarity);
+        return similarity;
+    }
+
+    // 计算相似度
+    public static double calculateSimilarity(String text1, String text2) {
+        int lcsLength = longestCommonSubsequence(text1, text2);
+        int len1 = text1.length();
+        int len2 = text2.length();
+        return (len1 + len2 == 0) ? 0.0 : (2.0 * lcsLength) / (len1 + len2);
+    }
 
     // 计算最长公共子序列长度（空间优化版）
     private static int longestCommonSubsequence(String text1, String text2) {
@@ -26,17 +50,5 @@ public class TextComparator {
             }
         }
         return dp[n];
-    }
-
-    // 计算文本相似度
-    public static double calculateSimilarity(String text1, String text2) {
-        int lcsLength = longestCommonSubsequence(text1, text2);
-        int len1 = text1.length();
-        int len2 = text2.length();
-
-        if (len1 + len2 == 0) {
-            return 0.0;
-        }
-        return (2.0 * lcsLength) / (len1 + len2);
     }
 }
