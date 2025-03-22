@@ -1,31 +1,47 @@
-import generator.ExpressionGenerator;
-import picocli.CommandLine;
-import validator.AnswerChecker;
+import utils.FileUtils;
 
-@CommandLine.Command(name = "MathGenerator", mixinStandardHelpOptions = true)
-public class Main implements Runnable {
-    @CommandLine.Option(names = {"-n"}, description = "题目数量")
-    private int questionCount;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    @CommandLine.Option(names = {"-r"}, required = true, description = "数值范围")
-    private int range;
+public class Main {
+    public static void main(String[] args) {
+        try {
+            Map<String, String> params = parseArgs(args);
+            if (params.containsKey("-e") && params.containsKey("-a")) {
+                ExerciseChecker.check(params.get("-e"), params.get("-a"));
+            } else if (params.containsKey("-n") && params.containsKey("-r")) {
+                int n = Integer.parseInt(params.get("-n"));
+                int r = Integer.parseInt(params.get("-r"));
 
-    @CommandLine.Option(names = {"-e"}, description = "题目文件路径")
-    private String exerciseFile;
+                ExpressionGenerator generator = new ExpressionGenerator(r);
+                List<String> exercises = generator.generate(n);
+                List<String> answers = generator.getAnswers();
 
-    @CommandLine.Option(names = {"-a"}, description = "答案文件路径")
-    private String answerFile;
-
-    @Override
-    public void run() {
-        if (exerciseFile != null && answerFile != null) {
-            AnswerChecker.check(exerciseFile, answerFile);
-        } else {
-            ExpressionGenerator.generate(questionCount, range);
+                FileUtils.write("Exercises.txt", exercises);
+                FileUtils.write("Answers.txt", answers);
+            } else {
+                showHelp();
+            }
+        } catch (Exception e) {
+            showHelp();
         }
     }
 
-    public static void main(String[] args) {
-        new CommandLine(new Main()).execute(args);
+    private static Map<String, String> parseArgs(String[] args) {
+        Map<String, String> params = new HashMap<>();
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].startsWith("-")) {
+                params.put(args[i], i < args.length-1 ? args[++i] : "");
+            }
+        }
+        return params;
+    }
+
+    private static void showHelp() {
+        System.out.println("Usage:");
+        System.out.println("Generate mode: Myapp.exe -n <number> -r <range>");
+        System.out.println("Check mode: Myapp.exe -e <exercisefile> -a <answerfile>");
+        System.exit(1);
     }
 }
